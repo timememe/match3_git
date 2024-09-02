@@ -1,19 +1,65 @@
 const grid = document.querySelector('.grid');
 const scoreDisplay = document.getElementById('score');
-const colors = ['red', 'yellow', 'green', 'blue', 'purple'];
+const timerDisplay = document.getElementById('timer');
+const backText = document.getElementById('back-text');
+const languageSelect = document.getElementById('language-select');
+const cardTypes = ['card_1', 'card_2', 'card_3', 'card_4', 'card_5', 'card_6', 'card_7'];
 let score = 0;
 const width = 7;
 const height = 7;
 let cells = [];
 let selectedCell = null;
 let touchStartX, touchStartY;
+let timeLeft = 120; // 2 minutes in seconds
+let currentLanguage = 'en';
 
-// Создание игрового поля
+const translations = {
+    en: {
+        back: "Back",
+        score: "Score",
+        timeUp: "Time's up! Game over.",
+        backClicked: "Back button clicked! Add your functionality here."
+    },
+    ru: {
+        back: "Назад",
+        score: "Счёт",
+        timeUp: "Время вышло! Игра окончена.",
+        backClicked: "Кнопка «Назад» нажата! Добавьте сюда свою функциональность."
+    },
+    kk: {
+        back: "Артқа",
+        score: "Ұпай",
+        timeUp: "Уақыт бітті! Ойын аяқталды.",
+        backClicked: "«Артқа» түймесі басылды! Мұнда өз функционалдығыңызды қосыңыз."
+    },
+    uz: {
+        back: "Orqaga",
+        score: "Hisob",
+        timeUp: "Vaqt tugadi! O'yin tugadi.",
+        backClicked: "Orqaga tugmasi bosildi! Bu yerga o'z funksionalligingizni qo'shing."
+    },
+    ka: {
+        back: "უკან",
+        score: "ქულა",
+        timeUp: "დრო ამოიწურა! თამაში დასრულდა.",
+        backClicked: "უკან ღილაკი დაჭერილია! დაამატეთ თქვენი ფუნქციონალი აქ."
+    }
+};
+
+function updateLanguage() {
+    currentLanguage = languageSelect.value;
+    backText.textContent = translations[currentLanguage].back;
+    updateScore();
+}
+
+languageSelect.addEventListener('change', updateLanguage);
+
+// Create the game board
 function createBoard() {
     for (let i = 0; i < width * height; i++) {
         const cell = document.createElement('div');
         cell.classList.add('cell');
-        cell.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        cell.style.backgroundImage = `url('assets/${cardTypes[Math.floor(Math.random() * cardTypes.length)]}.png')`;
         cell.setAttribute('draggable', true);
         cell.addEventListener('dragstart', dragStart);
         cell.addEventListener('dragover', dragOver);
@@ -30,7 +76,7 @@ function createBoard() {
     }
 }
 
-// Функции для перетаскивания на десктопе
+// Drag and drop functions
 function dragStart() {
     selectedCell = this;
     setTimeout(() => this.style.opacity = '0.5', 0);
@@ -59,7 +105,7 @@ function dragEnd() {
     selectedCell = null;
 }
 
-// Функции для сенсорных устройств
+// Touch functions for mobile devices
 function handleTouchStart(e) {
     selectedCell = this;
     const touch = e.touches[0];
@@ -79,10 +125,8 @@ function handleTouchMove(e) {
         let targetIndex;
         
         if (Math.abs(deltaX) > Math.abs(deltaY)) {
-            // Горизонтальное движение
             targetIndex = deltaX > 0 ? index + 1 : index - 1;
         } else {
-            // Вертикальное движение
             targetIndex = deltaY > 0 ? index + width : index - width;
         }
         
@@ -97,19 +141,27 @@ function handleTouchEnd() {
     selectedCell = null;
 }
 
-// Обмен ячейками
+// Swap cells with animation
 function swapCells(cell1, cell2) {
     if (isAdjacent(cell1, cell2)) {
-        const tempColor = cell1.style.backgroundColor;
-        cell1.style.backgroundColor = cell2.style.backgroundColor;
-        cell2.style.backgroundColor = tempColor;
-        checkForMatches();
-        fillEmptyCells();
-        checkForMatches(); // Проверяем еще раз после заполнения
+        cell1.classList.add('moving');
+        cell2.classList.add('moving');
+        
+        const tempBg = cell1.style.backgroundImage;
+        cell1.style.backgroundImage = cell2.style.backgroundImage;
+        cell2.style.backgroundImage = tempBg;
+        
+        setTimeout(() => {
+            cell1.classList.remove('moving');
+            cell2.classList.remove('moving');
+            checkForMatches();
+            fillEmptyCells();
+            checkForMatches();
+        }, 300);
     }
 }
 
-// Проверка, являются ли ячейки соседними
+// Check if cells are adjacent
 function isAdjacent(cell1, cell2) {
     const index1 = cells.indexOf(cell1);
     const index2 = cells.indexOf(cell2);
@@ -120,74 +172,127 @@ function isAdjacent(cell1, cell2) {
     return (Math.abs(row1 - row2) === 1 && col1 === col2) || (Math.abs(col1 - col2) === 1 && row1 === row2);
 }
 
-// Проверка совпадений
+// Check for matches with animation
 function checkForMatches() {
     let matchFound = false;
 
-    // Проверка горизонтальных совпадений
+    // Check horizontal matches
     for (let row = 0; row < height; row++) {
         for (let col = 0; col < width - 2; col++) {
             const index = row * width + col;
-            const color = cells[index].style.backgroundColor;
-            if (color !== '' &&
-                color === cells[index + 1].style.backgroundColor &&
-                color === cells[index + 2].style.backgroundColor) {
-                cells[index].style.backgroundColor = '';
-                cells[index + 1].style.backgroundColor = '';
-                cells[index + 2].style.backgroundColor = '';
+            const bg = cells[index].style.backgroundImage;
+            if (bg !== '' &&
+                bg === cells[index + 1].style.backgroundImage &&
+                bg === cells[index + 2].style.backgroundImage) {
+                cells[index].classList.add('matched');
+                cells[index + 1].classList.add('matched');
+                cells[index + 2].classList.add('matched');
                 score += 3;
                 matchFound = true;
+                
+                setTimeout(() => {
+                    cells[index].style.backgroundImage = '';
+                    cells[index + 1].style.backgroundImage = '';
+                    cells[index + 2].style.backgroundImage = '';
+                    cells[index].classList.remove('matched');
+                    cells[index + 1].classList.remove('matched');
+                    cells[index + 2].classList.remove('matched');
+                }, 500);
             }
         }
     }
 
-    // Проверка вертикальных совпадений
+    // Check vertical matches
     for (let col = 0; col < width; col++) {
         for (let row = 0; row < height - 2; row++) {
             const index = row * width + col;
-            const color = cells[index].style.backgroundColor;
-            if (color !== '' &&
-                color === cells[index + width].style.backgroundColor &&
-                color === cells[index + width * 2].style.backgroundColor) {
-                cells[index].style.backgroundColor = '';
-                cells[index + width].style.backgroundColor = '';
-                cells[index + width * 2].style.backgroundColor = '';
+            const bg = cells[index].style.backgroundImage;
+            if (bg !== '' &&
+                bg === cells[index + width].style.backgroundImage &&
+                bg === cells[index + width * 2].style.backgroundImage) {
+                cells[index].classList.add('matched');
+                cells[index + width].classList.add('matched');
+                cells[index + width * 2].classList.add('matched');
                 score += 3;
                 matchFound = true;
+                
+                setTimeout(() => {
+                    cells[index].style.backgroundImage = '';
+                    cells[index + width].style.backgroundImage = '';
+                    cells[index + width * 2].style.backgroundImage = '';
+                    cells[index].classList.remove('matched');
+                    cells[index + width].classList.remove('matched');
+                    cells[index + width * 2].classList.remove('matched');
+                }, 500);
             }
         }
     }
 
-    scoreDisplay.textContent = score;
+    updateScore();
     return matchFound;
 }
 
-// Заполнение пустых ячеек
+// Fill empty cells
 function fillEmptyCells() {
     for (let col = 0; col < width; col++) {
         let emptySpaces = 0;
         for (let row = height - 1; row >= 0; row--) {
             const index = row * width + col;
-            if (cells[index].style.backgroundColor === '') {
+            if (cells[index].style.backgroundImage === '') {
                 emptySpaces++;
             } else if (emptySpaces > 0) {
-                cells[index + width * emptySpaces].style.backgroundColor = cells[index].style.backgroundColor;
-                cells[index].style.backgroundColor = '';
+                cells[index + width * emptySpaces].style.backgroundImage = cells[index].style.backgroundImage;
+                cells[index].style.backgroundImage = '';
             }
         }
         for (let i = 0; i < emptySpaces; i++) {
             const index = i * width + col;
-            cells[index].style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            cells[index].style.backgroundImage = `url('assets/${cardTypes[Math.floor(Math.random() * cardTypes.length)]}.png')`;
         }
     }
 }
 
-// Обработчик клика
+// Handle click
 function handleClick() {
     if (checkForMatches()) {
-        fillEmptyCells();
-        checkForMatches(); // Проверяем еще раз после заполнения
+        setTimeout(() => {
+            fillEmptyCells();
+            checkForMatches();
+        }, 500);
     }
 }
 
-createBoard();
+// Update score display
+function updateScore() {
+    scoreDisplay.textContent = `${translations[currentLanguage].score}: ${score}`;
+}
+
+// Timer function
+function updateTimer() {
+    const minutes = Math.floor(timeLeft / 60);
+    let seconds = timeLeft % 60;
+    seconds = seconds < 10 ? '0' + seconds : seconds;
+    timerDisplay.textContent = `${minutes}:${seconds}`;
+    if (timeLeft > 0) {
+        timeLeft--;
+        setTimeout(updateTimer, 1000);
+    } else {
+        alert(translations[currentLanguage].timeUp);
+        // Here you can add code to end the game or restart
+    }
+}
+
+// Back button placeholder function
+backText.addEventListener('click', () => {
+    alert(translations[currentLanguage].backClicked);
+});
+
+// Initialize the game
+function initGame() {
+    createBoard();
+    updateTimer();
+    updateLanguage();
+}
+
+// Start the game
+initGame();
