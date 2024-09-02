@@ -9,8 +9,9 @@ const width = 7;
 const height = 7;
 let cells = [];
 let selectedCell = null;
+let touchedCell = null;
 let touchStartX, touchStartY;
-let timeLeft = 120; // 2 minutes in seconds
+let timeLeft = 60; // 2 minutes in seconds
 let currentLanguage = 'en';
 let isProcessing = false; 
 
@@ -19,41 +20,151 @@ const translations = {
         back: "Back",
         score: "Score",
         timeUp: "Time's up! Game over.",
-        backClicked: "Back button clicked! Add your functionality here."
+        backClicked: "Back button clicked! Add your functionality here.",
+        instruction: "Instruction",
+        tutorial: "Collect these 3 rows 3 times in 30 seconds!",
+        startGame: "Start Game",
+        gameOver: "Game Over",
+        yourScore: "Your score:",
+        playAgain: "Play Again",
+        victory: "Victory!",
+        taskCompleted: "You've completed the task!"
     },
     ru: {
         back: "Назад",
         score: "Счёт",
         timeUp: "Время вышло! Игра окончена.",
-        backClicked: "Кнопка «Назад» нажата! Добавьте сюда свою функциональность."
+        backClicked: "Кнопка «Назад» нажата! Добавьте сюда свою функциональность.",
+        instruction: "Инструкция",
+        tutorial: "Собери 3 раза эти 3 ряда за 30 секунд!",
+        startGame: "Начать игру",
+        gameOver: "Игра окончена",
+        yourScore: "Ваш счёт:",
+        playAgain: "Играть снова",
+        victory: "Победа!",
+        taskCompleted: "Вы выполнили задание!"
     },
     kk: {
         back: "Артқа",
         score: "Ұпай",
         timeUp: "Уақыт бітті! Ойын аяқталды.",
-        backClicked: "«Артқа» түймесі басылды! Мұнда өз функционалдығыңызды қосыңыз."
+        backClicked: "«Артқа» түймесі басылды! Мұнда өз функционалдығыңызды қосыңыз.",
+        instruction: "Нұсқаулық",
+        tutorial: "Осы 3 қатарды 30 секунд ішінде 3 рет жинаңыз!",
+        startGame: "Ойынды бастау",
+        gameOver: "Ойын аяқталды",
+        yourScore: "Сіздің ұпайыңыз:",
+        playAgain: "Қайта ойнау",
+        victory: "Жеңіс!",
+        taskCompleted: "Сіз тапсырманы орындадыңыз!"
     },
     uz: {
         back: "Orqaga",
         score: "Hisob",
         timeUp: "Vaqt tugadi! O'yin tugadi.",
-        backClicked: "Orqaga tugmasi bosildi! Bu yerga o'z funksionalligingizni qo'shing."
+        backClicked: "Orqaga tugmasi bosildi! Bu yerga o'z funksionalligingizni qo'shing.",
+        instruction: "Ko'rsatma",
+        tutorial: "Bu 3 qatorni 30 soniya ichida 3 marta yig'ing!",
+        startGame: "O'yinni boshlash",
+        gameOver: "O'yin tugadi",
+        yourScore: "Sizning hisobingiz:",
+        playAgain: "Qayta o'ynash",
+        victory: "G'alaba!",
+        taskCompleted: "Siz vazifani bajardingiz!"
     },
     ka: {
         back: "უკან",
         score: "ქულა",
         timeUp: "დრო ამოიწურა! თამაში დასრულდა.",
-        backClicked: "უკან ღილაკი დაჭერილია! დაამატეთ თქვენი ფუნქციონალი აქ."
+        backClicked: "უკან ღილაკი დაჭერილია! დაამატეთ თქვენი ფუნქციონალი აქ.",
+        instruction: "ინსტრუქცია",
+        tutorial: "შეაგროვე ეს 3 რიგი 3-ჯერ 30 წამში!",
+        startGame: "თამაშის დაწყება",
+        gameOver: "თამაში დასრულდა",
+        yourScore: "თქვენი ქულა:",
+        playAgain: "თავიდან თამაში",
+        victory: "გამარჯვება!",
+        taskCompleted: "თქვენ შეასრულეთ დავალება!"
     }
+};
+
+let comboCount = {
+    card_1: 0,
+    card_2: 0,
+    card_3: 0
 };
 
 function updateLanguage() {
     currentLanguage = languageSelect.value;
     backText.textContent = translations[currentLanguage].back;
     updateScore();
+    document.getElementById('start-title').textContent = translations[currentLanguage].instruction;
+    document.getElementById('start-instruction').textContent = translations[currentLanguage].tutorial;
+    document.getElementById('start-button').textContent = translations[currentLanguage].startGame;
+    document.getElementById('end-title').textContent = translations[currentLanguage].gameOver;
+    document.getElementById('end-text').textContent = translations[currentLanguage].yourScore;
+    document.getElementById('play-again-button').textContent = translations[currentLanguage].playAgain;
+    document.getElementById('win-title').textContent = translations[currentLanguage].victory;
+    document.getElementById('win-text').textContent = translations[currentLanguage].taskCompleted;
+    document.getElementById('play-again-button-win').textContent = translations[currentLanguage].playAgain;
 }
 
 languageSelect.addEventListener('change', updateLanguage);
+
+// Add new functions to handle popups
+function showStartPopup() {
+    document.getElementById('start-popup').style.display = 'flex';
+}
+
+function hideStartPopup() {
+    document.getElementById('start-popup').style.display = 'none';
+}
+
+function showWinPopup() {
+    document.getElementById('win-popup').style.display = 'flex';
+    document.getElementById('win-score').textContent = score;
+}
+
+function showEndPopup() {
+    document.getElementById('end-popup').style.display = 'flex';
+    document.getElementById('final-score').textContent = score;
+}
+
+function hideWinPopup() {
+    document.getElementById('win-popup').style.display = 'none';
+}
+
+function hideEndPopup() {
+    document.getElementById('end-popup').style.display = 'none';
+}
+
+// Add event listeners for buttons
+document.getElementById('start-button').addEventListener('click', () => {
+    hideStartPopup();
+    resetGame();
+    updateTimer();
+});
+
+document.getElementById('play-again-button').addEventListener('click', () => {
+    hideEndPopup();
+    resetGame();
+    updateTimer();
+});
+
+// Add a new function to reset the game
+function resetGame() {
+    score = 0;
+    timeLeft = 60;
+    comboCount = {
+        card_1: 0,
+        card_2: 0,
+        card_3: 0
+    };
+    updateScore();
+    cells.forEach(cell => {
+        cell.style.backgroundImage = `url('assets/${cardTypes[Math.floor(Math.random() * cardTypes.length)]}.png')`;
+    });
+}
 
 // Create the game board
 function createBoard() {
@@ -68,7 +179,6 @@ function createBoard() {
         cell.addEventListener('dragleave', dragLeave);
         cell.addEventListener('drop', dragDrop);
         cell.addEventListener('dragend', dragEnd);
-        cell.addEventListener('click', handleClick);
         cell.addEventListener('touchstart', handleTouchStart);
         cell.addEventListener('touchmove', handleTouchMove);
         cell.addEventListener('touchend', handleTouchEnd);
@@ -108,14 +218,16 @@ function dragEnd() {
 
 // Touch functions for mobile devices
 function handleTouchStart(e) {
+    if (isProcessing) return;
     selectedCell = this;
+    touchedCell = this;
     const touch = e.touches[0];
     touchStartX = touch.clientX;
     touchStartY = touch.clientY;
 }
 
 function handleTouchMove(e) {
-    if (!selectedCell) return;
+    if (!selectedCell || isProcessing) return;
     e.preventDefault();
     const touch = e.touches[0];
     const deltaX = touch.clientX - touchStartX;
@@ -132,13 +244,13 @@ function handleTouchMove(e) {
         }
         
         if (targetIndex >= 0 && targetIndex < cells.length) {
-            swapCells(selectedCell, cells[targetIndex]);
-            selectedCell = null;
+            touchedCell = cells[targetIndex];
         }
     }
 }
 
 function handleTouchEnd() {
+    if (isProcessing) return;
     if (selectedCell && touchedCell && selectedCell !== touchedCell) {
         swapCells(selectedCell, touchedCell);
     }
@@ -209,7 +321,13 @@ function checkForMatches() {
                     cells[index].classList.add('matched');
                     cells[index + 1].classList.add('matched');
                     cells[index + 2].classList.add('matched');
-                    score += 3;
+                    
+                    const cardType = bg.split('/').pop().split('.')[0];
+                    if (['card_1', 'card_2', 'card_3'].includes(cardType) && comboCount[cardType] === 0) {
+                        comboCount[cardType]++;
+                        score++;
+                    }
+                    
                     matchFound = true;
                 }
             }
@@ -226,7 +344,13 @@ function checkForMatches() {
                     cells[index].classList.add('matched');
                     cells[index + width].classList.add('matched');
                     cells[index + width * 2].classList.add('matched');
-                    score += 3;
+                    
+                    const cardType = bg.split('/').pop().split('.')[0];
+                    if (['card_1', 'card_2', 'card_3'].includes(cardType) && comboCount[cardType] === 0) {
+                        comboCount[cardType]++;
+                        score++;
+                    }
+                    
                     matchFound = true;
                 }
             }
@@ -241,6 +365,9 @@ function checkForMatches() {
                     }
                 });
                 updateScore();
+                if (comboCount.card_1 > 0 && comboCount.card_2 > 0 && comboCount.card_3 > 0) {
+                    endGame();
+                }
                 resolve(true);
             }, 500);
         } else {
@@ -325,20 +452,37 @@ function updateScore() {
     scoreDisplay.textContent = `${translations[currentLanguage].score}: ${score}`;
 }
 
-// Timer function
+// Modify the updateTimer function
 function updateTimer() {
-    const minutes = Math.floor(timeLeft / 60);
-    let seconds = timeLeft % 60;
-    seconds = seconds < 10 ? '0' + seconds : seconds;
-    timerDisplay.textContent = `${minutes}:${seconds}`;
+    const seconds = timeLeft;
+    timerDisplay.textContent = `0:${seconds < 10 ? '0' + seconds : seconds}`;
     if (timeLeft > 0) {
         timeLeft--;
         setTimeout(updateTimer, 1000);
     } else {
-        alert(translations[currentLanguage].timeUp);
-        // Here you can add code to end the game or restart
+        endGame();
     }
 }
+
+function endGame() {
+    if (comboCount.card_1 > 0 && comboCount.card_2 > 0 && comboCount.card_3 > 0) {
+        showWinPopup();
+    } else {
+        showEndPopup();
+    }
+}
+
+document.getElementById('play-again-button').addEventListener('click', () => {
+    hideEndPopup();
+    resetGame();
+    updateTimer();
+});
+
+document.getElementById('play-again-button-win').addEventListener('click', () => {
+    hideWinPopup();
+    resetGame();
+    updateTimer();
+});
 
 // Back button placeholder function
 backText.addEventListener('click', () => {

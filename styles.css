@@ -22,10 +22,21 @@ body {
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     align-items: center;
+    animation: pulseShadow 3s ease-in-out infinite;
+    border: 10px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+}
+
+@keyframes pulseShadow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+    }
 }
 
 .logo {
@@ -85,15 +96,17 @@ body {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
+    width: 100%;
 }
 
 .control-item {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     position: relative;
-    width: 100px; /* Фиксированная ширина */
-    height: 100px; /* Фиксированная высота */
+    width: 15vh;
+    height: 15vh;
 }
 
 .control-text {
@@ -106,12 +119,13 @@ body {
     z-index: 1;
     text-align: center;
     width: 100%;
+    font-size: 2.5vh;
 }
 
 .cookie-image {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Сохраняет пропорции изображения */
+    object-fit: cover;
 }
 
 .language-selector {
@@ -122,6 +136,94 @@ body {
 .language-selector select {
     padding: 5px;
     font-size: 16px;
+}
+
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+}
+
+.popup {
+    background-color: #0058C9;
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 80%;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0, 88, 201, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(5px);
+    color: white;
+}
+
+.popup h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.popup p {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.tutorial-images {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.tutorial-images img {
+    width: 100%;
+    border-radius: 10px;
+}
+
+.score-display {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+}
+
+.score-display img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.score-display .score {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+}
+
+.start-button, .play-again-button {
+    background-color: white;
+    color: #0058C9;
+    border: none;
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.start-button:hover, .play-again-button:hover {
+    background-color: #003d8f;
 }
 
 @media (max-width: 480px) {
@@ -136,7 +238,10 @@ body {
         gap: 2px;
     }
     .control-item {
-        width: 80px;
-        height: 80px;
+        width: 12vh;
+        height: 12vh;
+    }
+    .control-text {
+        font-size: 2vh;
     }
 }

@@ -7,6 +7,43 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div id="start-popup" class="popup-overlay">
+        <div class="popup">
+            <h2 id="start-title">Инструкция</h2>
+            <p id="start-instruction">Собери 3 раза эти 3 ряда за 30 секунд!</p>
+            <div class="tutorial-images">
+                <img src="assets/tut1.png" alt="Tutorial 1">
+                <img src="assets/tut2.png" alt="Tutorial 2">
+                <img src="assets/tut3.png" alt="Tutorial 3">
+            </div>
+            <button id="start-button" class="start-button">Начать игру</button>
+        </div>
+    </div>
+
+    <div id="win-popup" class="popup-overlay" style="display: none;">
+        <div class="popup">
+            <h2 id="win-title">Победа!</h2>
+            <p id="win-text">Вы выполнили задание!</p>
+            <div class="score-display">
+                <img src="assets/cookie_back.png" alt="Score Background">
+                <div id="win-score" class="score">0</div>
+            </div>
+            <button id="play-again-button-win" class="play-again-button">Играть снова</button>
+        </div>
+    </div>
+
+    <div id="end-popup" class="popup-overlay" style="display: none;">
+        <div class="popup">
+            <h2 id="end-title">Игра окончена</h2>
+            <p id="end-text">Ваш счет:</p>
+            <div class="score-display">
+                <img src="assets/cookie_back.png" alt="Score Background">
+                <div id="final-score" class="score">0</div>
+            </div>
+            <button id="play-again-button" class="play-again-button">Играть снова</button>
+        </div>
+    </div>
+
     <div class="game-container">
         <img src="assets/logo.png" alt="Game Logo" class="logo">
         <div class="grid">
@@ -22,7 +59,7 @@
                 <img src="assets/cookie_back.png" alt="Cookie" class="cookie-image">
             </div>
             <div class="control-item">
-                <span class="control-text" id="score">0</span>
+                <span class="control-text" id="score">Score: 0</span>
                 <img src="assets/cookie_back.png" alt="Cookie" class="cookie-image">
             </div>
         </div>
