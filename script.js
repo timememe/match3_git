@@ -11,7 +11,10 @@ let cells = [];
 let selectedCell = null;
 let touchedCell = null;
 let touchStartX, touchStartY;
-let timeLeft = 60; // 2 minutes in seconds
+
+let timeLeft; // 2 minutes in seconds
+let timerInterval;
+
 let currentLanguage = 'en';
 let isProcessing = false; 
 
@@ -122,12 +125,12 @@ function hideStartPopup() {
 
 function showWinPopup() {
     document.getElementById('win-popup').style.display = 'flex';
-    document.getElementById('win-score').textContent = score;
+    document.getElementById('win-score').innerHTML = `${translations[currentLanguage].score.toUpperCase()}:<br>${score}`;
 }
 
 function showEndPopup() {
     document.getElementById('end-popup').style.display = 'flex';
-    document.getElementById('final-score').textContent = score;
+    document.getElementById('final-score').innerHTML = `${translations[currentLanguage].score.toUpperCase()}:<br>${score}`;
 }
 
 function hideWinPopup() {
@@ -153,14 +156,16 @@ document.getElementById('play-again-button').addEventListener('click', () => {
 
 // Add a new function to reset the game
 function resetGame() {
+    clearInterval(timerInterval);
     score = 0;
-    timeLeft = 60;
+    timeLeft = 30;
     comboCount = {
         card_1: 0,
         card_2: 0,
         card_3: 0
     };
     updateScore();
+    updateTimer();
     cells.forEach(cell => {
         cell.style.backgroundImage = `url('assets/${cardTypes[Math.floor(Math.random() * cardTypes.length)]}.png')`;
     });
@@ -449,19 +454,24 @@ function handleClick() {
 
 // Update score display
 function updateScore() {
-    scoreDisplay.textContent = `${translations[currentLanguage].score}: ${score}`;
+    scoreDisplay.innerHTML = `${translations[currentLanguage].score.toUpperCase()}:<br>${score}`;
 }
 
 // Modify the updateTimer function
 function updateTimer() {
     const seconds = timeLeft;
-    timerDisplay.textContent = `0:${seconds < 10 ? '0' + seconds : seconds}`;
+    timerDisplay.innerHTML = `ВРЕМЯ:<br>${seconds < 10 ? '0' + seconds : seconds}`;
     if (timeLeft > 0) {
         timeLeft--;
-        setTimeout(updateTimer, 1000);
     } else {
+        clearInterval(timerInterval);
         endGame();
     }
+}
+
+function startGame() {
+    resetGame();
+    timerInterval = setInterval(updateTimer, 1000);
 }
 
 function endGame() {
@@ -472,16 +482,19 @@ function endGame() {
     }
 }
 
+document.getElementById('start-button').addEventListener('click', () => {
+    hideStartPopup();
+    startGame();
+});
+
 document.getElementById('play-again-button').addEventListener('click', () => {
     hideEndPopup();
-    resetGame();
-    updateTimer();
+    startGame();
 });
 
 document.getElementById('play-again-button-win').addEventListener('click', () => {
     hideWinPopup();
-    resetGame();
-    updateTimer();
+    startGame();
 });
 
 // Back button placeholder function
@@ -492,8 +505,9 @@ backText.addEventListener('click', () => {
 // Initialize the game
 function initGame() {
     createBoard();
-    updateTimer();
     updateLanguage();
+    resetGame();
+    showStartPopup();
 }
 
 // Start the game

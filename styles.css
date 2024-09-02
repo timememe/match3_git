@@ -105,8 +105,8 @@ body {
     align-items: center;
     justify-content: center;
     position: relative;
-    width: 15vh;
-    height: 15vh;
+    width: 18vh; /* Увеличено на 20% */
+    height: 18vh; /* Увеличено на 20% */
 }
 
 .control-text {
@@ -114,16 +114,25 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: black;
+    color: #2c211f;
     font-weight: bold;
     z-index: 1;
     text-align: center;
     width: 100%;
     font-size: 2.5vh;
+    text-transform: uppercase;
+    text-shadow: 0px 1px 1px rgba(255,255,255,0.5);
+    line-height: 1.2; /* Уменьшаем отступ между строками */
+}
+
+.control-text br {
+    display: block;
+    content: "";
+    margin-top: 0.1rem;
 }
 
 .cookie-image {
-    width: 100%;
+    width: 120%;
     height: 100%;
     object-fit: cover;
 }
@@ -190,8 +199,8 @@ body {
 
 .score-display {
     position: relative;
-    width: 150px;
-    height: 150px;
+    width: 180px; /* Увеличено на 20% */
+    height: 180px; /* Увеличено на 20% */
     margin: 0 auto;
 }
 
@@ -208,7 +217,11 @@ body {
     transform: translate(-50%, -50%);
     font-size: 24px;
     font-weight: bold;
-    color: white;
+    color: #2c211f;
+    text-transform: uppercase;
+    text-shadow: 0px 1px 1px rgba(255,255,255,0.5);
+    text-align: center;
+    line-height: 1.2;
 }
 
 .start-button, .play-again-button {
