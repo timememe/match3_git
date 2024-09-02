@@ -12,6 +12,7 @@ let selectedCell = null;
 let touchStartX, touchStartY;
 let timeLeft = 120; // 2 minutes in seconds
 let currentLanguage = 'en';
+let isProcessing = false; 
 
 const translations = {
     en: {
@@ -138,27 +139,30 @@ function handleTouchMove(e) {
 }
 
 function handleTouchEnd() {
+    if (selectedCell && touchedCell && selectedCell !== touchedCell) {
+        swapCells(selectedCell, touchedCell);
+    }
     selectedCell = null;
+    touchedCell = null;
 }
 
 // Swap cells with animation
 function swapCells(cell1, cell2) {
-    if (isAdjacent(cell1, cell2)) {
-        cell1.classList.add('moving');
-        cell2.classList.add('moving');
-        
-        const tempBg = cell1.style.backgroundImage;
-        cell1.style.backgroundImage = cell2.style.backgroundImage;
-        cell2.style.backgroundImage = tempBg;
-        
-        setTimeout(() => {
-            cell1.classList.remove('moving');
-            cell2.classList.remove('moving');
-            checkForMatches();
-            fillEmptyCells();
-            checkForMatches();
-        }, 300);
-    }
+    if (isProcessing || !isAdjacent(cell1, cell2)) return;
+
+    isProcessing = true;
+    cell1.classList.add('moving');
+    cell2.classList.add('moving');
+    
+    const tempBg = cell1.style.backgroundImage;
+    cell1.style.backgroundImage = cell2.style.backgroundImage;
+    cell2.style.backgroundImage = tempBg;
+    
+    setTimeout(() => {
+        cell1.classList.remove('moving');
+        cell2.classList.remove('moving');
+        processBoard();
+    }, 300);
 }
 
 // Check if cells are adjacent
@@ -172,95 +176,149 @@ function isAdjacent(cell1, cell2) {
     return (Math.abs(row1 - row2) === 1 && col1 === col2) || (Math.abs(col1 - col2) === 1 && row1 === row2);
 }
 
-// Check for matches with animation
+// New function to process the board
+function processBoard() {
+    checkForMatches()
+        .then(matchFound => {
+            if (matchFound) {
+                return fillEmptyCells();
+            } else {
+                isProcessing = false;
+            }
+        })
+        .then(() => {
+            if (isProcessing) {
+                processBoard(); // Continue processing if there were matches
+            }
+        });
+}
+
+// Modify checkForMatches to return a Promise
 function checkForMatches() {
-    let matchFound = false;
+    return new Promise(resolve => {
+        let matchFound = false;
 
-    // Check horizontal matches
-    for (let row = 0; row < height; row++) {
-        for (let col = 0; col < width - 2; col++) {
-            const index = row * width + col;
-            const bg = cells[index].style.backgroundImage;
-            if (bg !== '' &&
-                bg === cells[index + 1].style.backgroundImage &&
-                bg === cells[index + 2].style.backgroundImage) {
-                cells[index].classList.add('matched');
-                cells[index + 1].classList.add('matched');
-                cells[index + 2].classList.add('matched');
-                score += 3;
-                matchFound = true;
-                
-                setTimeout(() => {
-                    cells[index].style.backgroundImage = '';
-                    cells[index + 1].style.backgroundImage = '';
-                    cells[index + 2].style.backgroundImage = '';
-                    cells[index].classList.remove('matched');
-                    cells[index + 1].classList.remove('matched');
-                    cells[index + 2].classList.remove('matched');
-                }, 500);
+        // Check horizontal matches
+        for (let row = 0; row < height; row++) {
+            for (let col = 0; col < width - 2; col++) {
+                const index = row * width + col;
+                const bg = cells[index].style.backgroundImage;
+                if (bg !== '' &&
+                    bg === cells[index + 1].style.backgroundImage &&
+                    bg === cells[index + 2].style.backgroundImage) {
+                    cells[index].classList.add('matched');
+                    cells[index + 1].classList.add('matched');
+                    cells[index + 2].classList.add('matched');
+                    score += 3;
+                    matchFound = true;
+                }
             }
         }
-    }
 
-    // Check vertical matches
-    for (let col = 0; col < width; col++) {
-        for (let row = 0; row < height - 2; row++) {
-            const index = row * width + col;
-            const bg = cells[index].style.backgroundImage;
-            if (bg !== '' &&
-                bg === cells[index + width].style.backgroundImage &&
-                bg === cells[index + width * 2].style.backgroundImage) {
-                cells[index].classList.add('matched');
-                cells[index + width].classList.add('matched');
-                cells[index + width * 2].classList.add('matched');
-                score += 3;
-                matchFound = true;
-                
-                setTimeout(() => {
-                    cells[index].style.backgroundImage = '';
-                    cells[index + width].style.backgroundImage = '';
-                    cells[index + width * 2].style.backgroundImage = '';
-                    cells[index].classList.remove('matched');
-                    cells[index + width].classList.remove('matched');
-                    cells[index + width * 2].classList.remove('matched');
-                }, 500);
+        // Check vertical matches
+        for (let col = 0; col < width; col++) {
+            for (let row = 0; row < height - 2; row++) {
+                const index = row * width + col;
+                const bg = cells[index].style.backgroundImage;
+                if (bg !== '' &&
+                    bg === cells[index + width].style.backgroundImage &&
+                    bg === cells[index + width * 2].style.backgroundImage) {
+                    cells[index].classList.add('matched');
+                    cells[index + width].classList.add('matched');
+                    cells[index + width * 2].classList.add('matched');
+                    score += 3;
+                    matchFound = true;
+                }
             }
         }
-    }
 
-    updateScore();
-    return matchFound;
+        if (matchFound) {
+            setTimeout(() => {
+                cells.forEach(cell => {
+                    if (cell.classList.contains('matched')) {
+                        cell.style.backgroundImage = '';
+                        cell.classList.remove('matched');
+                    }
+                });
+                updateScore();
+                resolve(true);
+            }, 500);
+        } else {
+            resolve(false);
+        }
+    });
 }
 
-// Fill empty cells
+// Modify fillEmptyCells to return a Promise
 function fillEmptyCells() {
-    for (let col = 0; col < width; col++) {
-        let emptySpaces = 0;
-        for (let row = height - 1; row >= 0; row--) {
-            const index = row * width + col;
-            if (cells[index].style.backgroundImage === '') {
-                emptySpaces++;
-            } else if (emptySpaces > 0) {
-                cells[index + width * emptySpaces].style.backgroundImage = cells[index].style.backgroundImage;
-                cells[index].style.backgroundImage = '';
+    return new Promise(resolve => {
+        const promises = [];
+
+        for (let col = 0; col < width; col++) {
+            let emptySpaces = 0;
+            for (let row = height - 1; row >= 0; row--) {
+                const index = row * width + col;
+                if (cells[index].style.backgroundImage === '') {
+                    emptySpaces++;
+                } else if (emptySpaces > 0) {
+                    const promise = new Promise(cellResolve => {
+                        const currentCell = cells[index];
+                        const targetCell = cells[index + width * emptySpaces];
+                        const startPosition = currentCell.offsetTop;
+                        const endPosition = targetCell.offsetTop;
+
+                        currentCell.style.zIndex = '10';
+                        currentCell.classList.add('falling');
+                        currentCell.style.transform = `translateY(${endPosition - startPosition}px)`;
+
+                        setTimeout(() => {
+                            targetCell.style.backgroundImage = currentCell.style.backgroundImage;
+                            currentCell.style.backgroundImage = '';
+                            currentCell.style.transform = '';
+                            currentCell.style.zIndex = '';
+                            currentCell.classList.remove('falling');
+                            cellResolve();
+                        }, 500);
+                    });
+                    promises.push(promise);
+                }
+            }
+            for (let i = 0; i < emptySpaces; i++) {
+                const index = i * width + col;
+                const promise = new Promise(cellResolve => {
+                    setTimeout(() => {
+                        cells[index].style.backgroundImage = `url('assets/${cardTypes[Math.floor(Math.random() * cardTypes.length)]}.png')`;
+                        cells[index].style.opacity = '0';
+                        cells[index].classList.add('falling');
+                        cells[index].style.transform = 'translateY(-50px)';
+                        setTimeout(() => {
+                            cells[index].style.opacity = '1';
+                            cells[index].style.transform = '';
+                            cells[index].classList.remove('falling');
+                            cellResolve();
+                        }, 300);
+                    }, i * 100);
+                });
+                promises.push(promise);
             }
         }
-        for (let i = 0; i < emptySpaces; i++) {
-            const index = i * width + col;
-            cells[index].style.backgroundImage = `url('assets/${cardTypes[Math.floor(Math.random() * cardTypes.length)]}.png')`;
-        }
-    }
+
+        Promise.all(promises).then(() => resolve());
+    });
 }
+
 
 // Handle click
 function handleClick() {
     if (checkForMatches()) {
         setTimeout(() => {
-            fillEmptyCells();
-            checkForMatches();
+            fillEmptyCells().then(() => {
+                checkForMatches();
+            });
         }, 500);
     }
 }
+
 
 // Update score display
 function updateScore() {
