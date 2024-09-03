@@ -46,7 +46,7 @@
         let touchStartX, touchStartY;
         let timeLeft = 30; // 30 seconds
         let timerInterval;
-        let currentLanguage = container.getAttribute('lang') || 'ru';
+        let currentLanguage = container.getAttribute('lang');
         let isProcessing = false;
 
         const translations = {
