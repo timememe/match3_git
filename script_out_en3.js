@@ -580,10 +580,10 @@
             if (comboCount.card_1 > 0 && comboCount.card_2 > 0 && comboCount.card_3 > 0) {
                 showWinPopup();
                 awardPoints(1); // 
-                sendGameResult('game1', 'win', 'ge');
+                sendGameResult('game2', 'win', 'ge');
             } else {
                 showEndPopup();
-                sendGameResult('game1', 'lose', 'ge');
+                sendGameResult('game2', 'lose', 'ge');
             }
         }
 

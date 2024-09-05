@@ -46,7 +46,7 @@
         let touchStartX, touchStartY;
         let timeLeft = 30; // 30 seconds
         let timerInterval;
-        let currentLanguage = container.getAttribute('lang') || 'ru';
+        let currentLanguage = container.getAttribute('lang') || 'ka';
         let isProcessing = false;
 
         const translations = {
@@ -552,10 +552,10 @@
             if (comboCount.card_1 > 0 && comboCount.card_2 > 0 && comboCount.card_3 > 0) {
                 showWinPopup();
                 awardPoints(1); //
-                sendGameResult('game2', 'win', 'ru');
+                sendGameResult('game1', 'win', 'ge');
             } else {
                 showEndPopup();
-                sendGameResult('game2', 'lose', 'ru');
+                sendGameResult('game1', 'lose', 'ge');
             }
         }
 
