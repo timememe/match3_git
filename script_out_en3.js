@@ -583,7 +583,7 @@
                 sendGameResult('game2', 'win', 'ge');
             } else {
                 showEndPopup();
-                sendGameResult('game2', 'lose', 'ge');
+                sendGameResult('game2', 'loss', 'ge');
             }
         }
 

@@ -555,7 +555,7 @@
                 sendGameResult('game2', 'win', 'uz');
             } else {
                 showEndPopup();
-                sendGameResult('game2', 'lose', 'uz');
+                sendGameResult('game2', 'loss', 'uz');
             }
         }
 

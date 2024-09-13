@@ -555,7 +555,7 @@
                 sendGameResult('game2', 'win', 'kz');
             } else {
                 showEndPopup();
-                sendGameResult('game2', 'lose', 'kz');
+                sendGameResult('game2', 'loss', 'kz');
             }
         }
 
