@@ -183,8 +183,9 @@
 
         function updateLanguage() {
             //currentLanguage = languageSelect.value;
-            //backText.textContent = translations[currentLanguage].back;
+            backText.textContent = translations[currentLanguage].back;
             updateScore();
+            container.querySelector('#start-title').textContent = translations[currentLanguage].instruction;
             container.querySelector('#start-title').textContent = translations[currentLanguage].instruction;
             container.querySelector('#start-instruction').textContent = translations[currentLanguage].tutorial;
             container.querySelector('#start-button').textContent = translations[currentLanguage].startGame;
@@ -533,7 +534,7 @@
         // Modify the updateTimer function
         function updateTimer() {
             const seconds = timeLeft;
-            timerDisplay.innerHTML = `ВРЕМЯ:<br>${seconds < 10 ? '0' + seconds : seconds}`;
+            timerDisplay.innerHTML = `${seconds < 10 ? '0' + seconds : seconds}`;
             if (timeLeft > 0) {
                 timeLeft--;
             } else {
