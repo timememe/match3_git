@@ -563,18 +563,6 @@
             timerInterval = setInterval(updateTimer, 1000);
         }
 
-        function endGame() {
-            clearInterval(timerInterval);
-            if (comboCount.card_1 > 0 && comboCount.card_2 > 0 && comboCount.card_3 > 0) {
-                showWinPopup();
-                awardPoints(1); //
-                sendGameResult('game2', 'win', currentLanguage);
-            } else {
-                showEndPopup();
-                sendGameResult('game2', 'loss', currentLanguage);
-            }
-        }
-
         function sendGameResult(game, result, language) {
             console.log('Sending result:', game, result, language);  // Обновлено для отладки
 
@@ -603,6 +591,18 @@
             .catch(error => console.error('Error sending game result:', error));
         }
 
+        function endGame() {
+            clearInterval(timerInterval);
+            if (comboCount.card_1 > 0 && comboCount.card_2 > 0 && comboCount.card_3 > 0) {
+                showWinPopup();
+                awardPoints(1); //
+                sendGameResult('game1', 'win', currentLanguage);
+            } else {
+                showEndPopup();
+                sendGameResult('game1', 'loss', currentLanguage);
+            }
+        }
+        
         backText.addEventListener('click', () => {
             window.location = "/profile";
         });

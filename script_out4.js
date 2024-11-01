@@ -568,10 +568,10 @@
             if (comboCount.card_1 > 0 && comboCount.card_2 > 0 && comboCount.card_3 > 0) {
                 showWinPopup();
                 awardPoints(1); //
-                sendGameResult('game2', 'win', currentLanguage);
+                sendGameResult('game1', 'win', currentLanguage);
             } else {
                 showEndPopup();
-                sendGameResult('game2', 'loss', currentLanguage);
+                sendGameResult('game1', 'loss', currentLanguage);
             }
         }
 
